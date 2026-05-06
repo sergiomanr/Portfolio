@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoresearcher | Sergio Manrique</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <h1>Autoresearcher</h1>
+        <p>AI-Driven Feature Engineering</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Work</a>
+        <a href="about.html">About Me</a>
+    </nav>
+
+    <main>
+        <section>
+            <h2>Project Overview</h2>
+            <div class="about-content">
+                <p>
+                    Inspired by <a href="https://x.com/karpathy/status/2031137476438548874?lang=en">Karpathy's autoresearch</a>, this project applies AI agents to the complex task of feature engineering for machine learning. Specifically, it was used to compete in a Kaggle-in-class competition focused on predicting house prices in the Ames Housing Dataset.
+                </p>
+
+                <img src="Figure_1.png" alt="Autoresearcher Progress Graph" class="project-image">
+                
+                <h3 style="margin-top: 20px;">Key Achievements</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Achieved 7th place out of approximately 100 participants.</li>
+                    <li>Automated the discovery of complex interactions like "Age-Adjusted Foundation Premium" and "Roof-Exterior Premium".</li>
+                </ul>
+
+                <h3 style="margin-top: 20px;">How it Works</h3>
+                <p>
+                    The system uses an LLM-based agent (leveraging Aider) to analyze the current model performance, propose new feature engineering ideas, implement them in the preprocessing pipeline, and validate the results through cross-validation. This "loop" allows for rapid experimentation and discovery of features that a human might overlook.
+                </p>
+                <h3 style="margin-top: 30px;">Technical Stack</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Continious agent:</strong> AiderChat ran independent for a few hours without human interaction.</li>
+                    <li><strong>ChatGPT API:</strong> OpenAI o3-mini was used to make the changes to the code.</li>
+                    <li><strong>Code validation:</strong> The proposed change was implemented and train an Autogluon model for 5 minutes, if the resulting RMSE was better than before the change was kept if not it was discarted.</li>
+                </ul>
+
+                <div style="margin-top: 30px;">
+                    <a href="https://github.com/sergiomanr/Autoresearcher-v3-gpto-mini" class="github-btn" target="_blank">View on GitHub</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sergio Manrique — <a href="https://github.com/sergiomanr">GitHub</a></p>
+    </footer>
+</body>
+</html>
