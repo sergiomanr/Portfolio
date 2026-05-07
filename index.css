@@ -48,9 +48,9 @@ nav a {
     font-weight: 500;
 }
 
-nav a:hover {
+/* nav a:hover {
     text-decoration: underline;
-}
+} */
 
 section {
     margin-bottom: 40px;
@@ -87,6 +87,16 @@ h2 {
     margin-bottom: 15px;
 }
 
+.project-card-link::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
 .project-title {
     font-weight: 700;
     display: block;
@@ -115,6 +125,8 @@ h2 {
     font-weight: 600;
     border-radius: 4px;
     transition: opacity 0.2s ease;
+    position: relative;
+    z-index: 2;
 }
 
 .github-btn:hover {
@@ -158,6 +170,17 @@ h2 {
 
 a {
     color: var(--link-color);
+    text-decoration: none;
+}
+
+/* a:hover {
+    text-decoration: underline;
+} */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 .about-content {
