@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Processing Pipeline | Sergio Manrique</title>
+    <link rel="icon" type="image/png" href="./Photos/Logo_portfolio.png">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <h1>Real-Time Processing Pipeline</h1>
+        <p>Ride-Sharing Data Lakehouse</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Work</a>
+        <a href="about.html">About Me</a>
+    </nav>
+
+    <main>
+        <section>
+            <h2>Project Overview</h2>
+            <div class="about-content">
+                <p>
+                    An end-to-end data pipeline implementing a <strong>Medallion Architecture</strong> (Bronze, Silver, Gold layers) using AWS S3, PySpark, and Delta Lake. The pipeline supports both batch files and live stream ingestion via Kafka (Redpanda) into a containerized local storage (MinIO) or cloud-native AWS S3, orchestrated by Apache Airflow, and visualized through a client-side analytics dashboard.
+                </p>
+
+                <h3 style="margin-top: 30px;">Architecture</h3>
+                <img src="./Photos/lakehouse_architecture.png" alt="Lakehouse Medallion Architecture Diagram" class="project-image">
+
+                <h3 style="margin-top: 30px;">Key Features</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Medallion Lakehouse Pattern:</strong> Multi-stage data processing, raw JSON events in Bronze, cleaned schema-enforced Delta Lake tables in Silver, and daily aggregated business metrics in Gold.</li>
+                    <li><strong>Kafka / Redpanda Event Streaming:</strong> Simulates real-time event ingestion. A producer streams JSON ride records to a Kafka topic, and a consumer aggregates them into batch Gzip files for Bronze layer persistence.</li>
+                    <li><strong>Incremental Streaming Pipeline:</strong> PySpark Structured Streaming with checkpoints for incremental updates from Bronze to Silver Delta Lake.
+                    <li><strong>Containerized Local Stack:</strong> Docker Compose configuration with Redpanda, Console UI, and MinIO to simulate an s3 bucket but for zero-cost.</li>
+                    <li><strong>Airflow Orchestration:</strong> A DAG coordinates task execution, managing pipeline dependencies and scheduling.</li>
+                </ul>
+
+                <h3 style="margin-top: 30px;">Pipeline Flow</h3>
+                <p>
+                    The data flows through six distinct stages: NYC taxi trip data is downloaded from HuggingFace, streamed through Kafka/Redpanda, persisted as compressed JSONLines in the Bronze layer, cleaned and validated into Silver Delta Lake tables via Structured Streaming, aggregated into Gold-layer metrics (revenue, rides, distance, active drivers), and finally exported to a responsive analytics dashboard.
+                </p>
+
+                <h3 style="margin-top: 30px;">Airflow DAG Topology</h3>
+                <p style="font-size: 16px; color: #666; margin-bottom: 10px;">Task dependency graph orchestrated by Airflow:</p>
+                <pre style="background: #f5f5f5; padding: 20px; border: 1px solid #eee; font-size: 14px; line-height: 1.8; overflow-x: auto;">  [ingest_bronze_layer]
+           │
+           ▼
+  [process_silver_layer]
+           │
+           ▼
+  [compute_gold_aggregations]
+           │
+     ┌─────┴──────────┐
+     ▼                ▼
+[read_gold_metrics]   [export_dashboard_data]</pre>
+
+                <h3 style="margin-top: 30px;">Technical Stack</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Engine:</strong> PySpark with Delta Lake for lakehouse storage.</li>
+                    <li><strong>Event Broker:</strong> Redpanda / Apache Kafka for real-time event streaming.</li>
+                    <li><strong>Cloud Storage:</strong> AWS S3 or local MinIO (S3-compatible).</li>
+                    <li><strong>Orchestration:</strong> Apache Airflow 2.8+ for DAG-based scheduling and dependency management.</li>
+                    <li><strong>Containerization:</strong> Docker Compose for the full local infrastructure stack.</li>
+                    <li><strong>Dashboard:</strong> HTML/CSS for client-side analytics visualization.</li>
+                </ul>
+
+                <div style="margin-top: 30px;">
+                    <a href="https://github.com/sergiomanr/Real-time-processing-pipeline" class="github-btn" target="_blank">View on GitHub</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sergio Manrique — <a href="https://github.com/sergiomanr">GitHub</a></p>
+    </footer>
+</body>
+</html>
