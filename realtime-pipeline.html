@@ -23,7 +23,7 @@
             <h2>Project Overview</h2>
             <div class="about-content">
                 <p>
-                    An end-to-end data pipeline implementing a <strong>Medallion Architecture</strong> (Bronze, Silver, Gold layers) using AWS S3, PySpark, and Delta Lake. The pipeline supports both batch files and live stream ingestion via Kafka (Redpanda) into a containerized local storage (MinIO) or cloud-native AWS S3, orchestrated by Apache Airflow, and visualized through a client-side analytics dashboard.
+                    An end-to-end data pipeline implementing a <strong>Medallion Architecture</strong> (Bronze, Silver, Gold layers) using PySpark, Delta Lake, and MinIO (S3-compatible storage). The pipeline supports real-time event streaming via Kafka (Redpanda), orchestrated by Apache Airflow, with aggregated business metrics exported to a PostgreSQL database for reporting and visualized via Grafana and a client-side analytics dashboard.
                 </p>
 
                 <h3 style="margin-top: 30px;">Architecture</h3>
@@ -31,16 +31,18 @@
 
                 <h3 style="margin-top: 30px;">Key Features</h3>
                 <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><strong>Medallion Lakehouse Pattern:</strong> Multi-stage data processing, raw JSON events in Bronze, cleaned schema-enforced Delta Lake tables in Silver, and daily aggregated business metrics in Gold.</li>
-                    <li><strong>Kafka / Redpanda Event Streaming:</strong> Simulates real-time event ingestion. A producer streams JSON ride records to a Kafka topic, and a consumer aggregates them into batch Gzip files for Bronze layer persistence.</li>
-                    <li><strong>Incremental Streaming Pipeline:</strong> PySpark Structured Streaming with checkpoints for incremental updates from Bronze to Silver Delta Lake.
-                    <li><strong>Containerized Local Stack:</strong> Docker Compose configuration with Redpanda, Console UI, and MinIO to simulate an s3 bucket but for zero-cost.</li>
-                    <li><strong>Airflow Orchestration:</strong> A DAG coordinates task execution, managing pipeline dependencies and scheduling.</li>
+                    <li><strong>Medallion Lakehouse Pattern:</strong> Progressive data processing stages: raw JSON events in Bronze, cleaned schema-enforced Delta Lake tables in Silver, and daily aggregated business KPIs in Gold.</li>
+                    <li><strong>Kafka / Redpanda Event Streaming:</strong> Simulates real-time ingestion. A producer publishes JSON ride records to a Redpanda topic, and a consumer aggregates them into batch Gzip files, writing to the Bronze layer with manual offset commits.</li>
+                    <li><strong>PostgreSQL & Grafana Integration:</strong> Daily metrics from the Gold Delta Lake table are exported to a PostgreSQL instance, enabling direct SQL querying and visualization within Grafana.</li>
+                    <li><strong>Incremental Streaming Pipeline:</strong> PySpark Structured Streaming with checkpoints for incremental updates from the Bronze path to the Silver Delta Lake table using the <code>availableNow=True</code> trigger.</li>
+                    <li><strong>Containerized Local Stack:</strong> A unified Docker Compose environment comprising Redpanda, Redpanda Console UI, MinIO storage, PostgreSQL, and Grafana.</li>
+                    <li><strong>Modern Python Tooling:</strong> Dependency management and execution handled via <code>uv</code> and <code>pyproject.toml</code>.</li>
+                    <li><strong>Airflow Orchestration:</strong> A DAG schedules and coordinates pipeline task dependencies at regular intervals.</li>
                 </ul>
 
                 <h3 style="margin-top: 30px;">Pipeline Flow</h3>
                 <p>
-                    The data flows through six distinct stages: NYC taxi trip data is downloaded from HuggingFace, streamed through Kafka/Redpanda, persisted as compressed JSONLines in the Bronze layer, cleaned and validated into Silver Delta Lake tables via Structured Streaming, aggregated into Gold-layer metrics (revenue, rides, distance, active drivers), and finally exported to a responsive analytics dashboard.
+                    The data flows through six distinct stages: NYC taxi trip data is downloaded from HuggingFace, streamed through Kafka/Redpanda, persisted as compressed JSONLines in the Bronze layer, cleaned and validated into Silver Delta Lake tables via Structured Streaming, aggregated into Gold-layer metrics (revenue, rides, distance, active drivers), exported to a PostgreSQL database, and rendered on a responsive analytics dashboard and Grafana.
                 </p>
 
                 <h3 style="margin-top: 30px;">Airflow DAG Topology</h3>
@@ -53,18 +55,20 @@
            ▼
   [compute_gold_aggregations]
            │
-     ┌─────┴──────────┐
-     ▼                ▼
-[read_gold_metrics]   [export_dashboard_data]</pre>
+     ┌─────┼──────────────────────┐
+     ▼     ▼                      ▼
+[read_gold] [export_dashboard] [export_postgres]</pre>
 
                 <h3 style="margin-top: 30px;">Technical Stack</h3>
                 <ul style="margin-left: 20px; margin-top: 10px;">
                     <li><strong>Engine:</strong> PySpark with Delta Lake for lakehouse storage.</li>
                     <li><strong>Event Broker:</strong> Redpanda / Apache Kafka for real-time event streaming.</li>
                     <li><strong>Cloud Storage:</strong> AWS S3 or local MinIO (S3-compatible).</li>
-                    <li><strong>Orchestration:</strong> Apache Airflow 2.8+ for DAG-based scheduling and dependency management.</li>
+                    <li><strong>Relational Database:</strong> PostgreSQL for structured reporting.</li>
+                    <li><strong>Visualization:</strong> Grafana & Chart.js for real-time metrics dashboards.</li>
+                    <li><strong>Orchestration:</strong> Apache Airflow 2.8+ for DAG scheduling and dependency management.</li>
+                    <li><strong>Modern Tooling:</strong> <code>uv</code> for package/dependency management.</li>
                     <li><strong>Containerization:</strong> Docker Compose for the full local infrastructure stack.</li>
-                    <li><strong>Dashboard:</strong> HTML/CSS for client-side analytics visualization.</li>
                 </ul>
 
                 <div style="margin-top: 30px;">
