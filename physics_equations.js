@@ -13,7 +13,9 @@ function getEOM_2pend(q, qd, params, f_input) {
   // Unpack params
   const M_c = params.M_c;
   const m1 = params.m1;
+  const I1 = params.I1;
   const m2 = params.m2;
+  const I2 = params.I2;
   const L = params.L;
   const g = params.g;
   const d_c = params.d_c;
@@ -27,12 +29,12 @@ function getEOM_2pend(q, qd, params, f_input) {
   A[0][2] = 0.5*L*m2*Math.cos(q_2);
   A[1] = [];
   A[1][0] = L*(0.5*m1 + 1.0*m2)*Math.cos(q_1);
-  A[1][1] = L**2*(0.333333333333333*m1 + 1.0*m2);
+  A[1][1] = 1.0*I1 + 0.25*L**2*m1 + 1.0*L**2*m2;
   A[1][2] = 0.5*L**2*m2*Math.cos(q_1 - q_2);
   A[2] = [];
   A[2][0] = 0.5*L*m2*Math.cos(q_2);
   A[2][1] = 0.5*L**2*m2*Math.cos(q_1 - q_2);
-  A[2][2] = 0.333333333333333*L**2*m2;
+  A[2][2] = 1.0*I2 + 0.25*L**2*m2;
 
   const B = [];
   B[0] = 0.5*L*m2*qd_2**2*Math.sin(q_2) + L*qd_1**2*(0.5*m1 + 1.0*m2)*Math.sin(q_1) - d_c*qd_0 + f;
@@ -56,8 +58,11 @@ function getEOM_3pend(q, qd, params, f_input) {
   // Unpack params
   const M_c = params.M_c;
   const m1 = params.m1;
+  const I1 = params.I1;
   const m2 = params.m2;
+  const I2 = params.I2;
   const m3 = params.m3;
+  const I3 = params.I3;
   const L = params.L;
   const g = params.g;
   const d_c = params.d_c;
@@ -72,19 +77,19 @@ function getEOM_3pend(q, qd, params, f_input) {
   A[0][3] = 0.5*L*m3*Math.cos(q_3);
   A[1] = [];
   A[1][0] = L*(0.5*m1 + 1.0*m2 + 1.0*m3)*Math.cos(q_1);
-  A[1][1] = L**2*(0.333333333333333*m1 + 1.0*m2 + 1.0*m3);
+  A[1][1] = 1.0*I1 + 0.25*L**2*m1 + 1.0*L**2*m2 + 1.0*L**2*m3;
   A[1][2] = L**2*(0.5*m2 + 1.0*m3)*Math.cos(q_1 - q_2);
   A[1][3] = 0.5*L**2*m3*Math.cos(q_1 - q_3);
   A[2] = [];
   A[2][0] = L*(0.5*m2 + 1.0*m3)*Math.cos(q_2);
   A[2][1] = L**2*(0.5*m2 + 1.0*m3)*Math.cos(q_1 - q_2);
-  A[2][2] = L**2*(0.333333333333333*m2 + 1.0*m3);
+  A[2][2] = 1.0*I2 + 0.25*L**2*m2 + 1.0*L**2*m3;
   A[2][3] = 0.5*L**2*m3*Math.cos(q_2 - q_3);
   A[3] = [];
   A[3][0] = 0.5*L*m3*Math.cos(q_3);
   A[3][1] = 0.5*L**2*m3*Math.cos(q_1 - q_3);
   A[3][2] = 0.5*L**2*m3*Math.cos(q_2 - q_3);
-  A[3][3] = 0.333333333333333*L**2*m3;
+  A[3][3] = 1.0*I3 + 0.25*L**2*m3;
 
   const B = [];
   B[0] = 0.5*L*m3*qd_3**2*Math.sin(q_3) + L*qd_1**2*(0.5*m1 + 1.0*m2 + 1.0*m3)*Math.sin(q_1) + L*qd_2**2*(0.5*m2 + 1.0*m3)*Math.sin(q_2) - d_c*qd_0 + f;
@@ -111,9 +116,13 @@ function getEOM_4pend(q, qd, params, f_input) {
   // Unpack params
   const M_c = params.M_c;
   const m1 = params.m1;
+  const I1 = params.I1;
   const m2 = params.m2;
+  const I2 = params.I2;
   const m3 = params.m3;
+  const I3 = params.I3;
   const m4 = params.m4;
+  const I4 = params.I4;
   const L = params.L;
   const g = params.g;
   const d_c = params.d_c;
@@ -129,28 +138,28 @@ function getEOM_4pend(q, qd, params, f_input) {
   A[0][4] = 0.5*L*m4*Math.cos(q_4);
   A[1] = [];
   A[1][0] = L*(0.5*m1 + 1.0*m2 + 1.0*m3 + 1.0*m4)*Math.cos(q_1);
-  A[1][1] = L**2*(0.333333333333333*m1 + 1.0*m2 + 1.0*m3 + 1.0*m4);
+  A[1][1] = 1.0*I1 + 0.25*L**2*m1 + 1.0*L**2*m2 + 1.0*L**2*m3 + 1.0*L**2*m4;
   A[1][2] = L**2*(0.5*m2 + 1.0*m3 + 1.0*m4)*Math.cos(q_1 - q_2);
   A[1][3] = L**2*(0.5*m3 + 1.0*m4)*Math.cos(q_1 - q_3);
   A[1][4] = 0.5*L**2*m4*Math.cos(q_1 - q_4);
   A[2] = [];
   A[2][0] = L*(0.5*m2 + 1.0*m3 + 1.0*m4)*Math.cos(q_2);
   A[2][1] = L**2*(0.5*m2 + 1.0*m3 + 1.0*m4)*Math.cos(q_1 - q_2);
-  A[2][2] = L**2*(0.333333333333333*m2 + 1.0*m3 + 1.0*m4);
+  A[2][2] = 1.0*I2 + 0.25*L**2*m2 + 1.0*L**2*m3 + 1.0*L**2*m4;
   A[2][3] = L**2*(0.5*m3 + 1.0*m4)*Math.cos(q_2 - q_3);
   A[2][4] = 0.5*L**2*m4*Math.cos(q_2 - q_4);
   A[3] = [];
   A[3][0] = L*(0.5*m3 + 1.0*m4)*Math.cos(q_3);
   A[3][1] = L**2*(0.5*m3 + 1.0*m4)*Math.cos(q_1 - q_3);
   A[3][2] = L**2*(0.5*m3 + 1.0*m4)*Math.cos(q_2 - q_3);
-  A[3][3] = L**2*(0.333333333333333*m3 + 1.0*m4);
+  A[3][3] = 1.0*I3 + 0.25*L**2*m3 + 1.0*L**2*m4;
   A[3][4] = 0.5*L**2*m4*Math.cos(q_3 - q_4);
   A[4] = [];
   A[4][0] = 0.5*L*m4*Math.cos(q_4);
   A[4][1] = 0.5*L**2*m4*Math.cos(q_1 - q_4);
   A[4][2] = 0.5*L**2*m4*Math.cos(q_2 - q_4);
   A[4][3] = 0.5*L**2*m4*Math.cos(q_3 - q_4);
-  A[4][4] = 0.333333333333333*L**2*m4;
+  A[4][4] = 1.0*I4 + 0.25*L**2*m4;
 
   const B = [];
   B[0] = 0.5*L*m4*qd_4**2*Math.sin(q_4) + L*qd_1**2*(0.5*m1 + 1.0*m2 + 1.0*m3 + 1.0*m4)*Math.sin(q_1) + L*qd_2**2*(0.5*m2 + 1.0*m3 + 1.0*m4)*Math.sin(q_2) + L*qd_3**2*(0.5*m3 + 1.0*m4)*Math.sin(q_3) - d_c*qd_0 + f;

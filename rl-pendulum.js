@@ -66,8 +66,13 @@ const state = {
   params: {
     M_c: 1.0,
     m1: 0.1,
+    I1: 0.003761,
     m2: 0.1,
+    I2: 0.003761,
     m3: 0.1,
+    I3: 0.003761,
+    m4: 0.1,
+    I4: 0.003761,
     L: 0.6,
     g: 9.81,
     d_c: 1.0,
@@ -107,11 +112,29 @@ const el = {
 
 // Physics Accelerations
 function computeAccelerations(q, qd, force) {
+  const x = q[0];
+  const xd = qd[0];
+  let f_wall = 0.0;
+  const limit = 12.0;
+  const K_wall = 2200.0;
+  const D_wall = 85.0;
+  if (x > limit) {
+    f_wall = -K_wall * (x - limit) - D_wall * xd;
+  } else if (x < -limit) {
+    f_wall = -K_wall * (x + limit) - D_wall * xd;
+  }
+  
+  const totalForce = force + f_wall;
+  
   let result;
   if (state.N === 2) {
-    result = getEOM_2pend(q, qd, state.params, force);
+    result = getEOM_2pend(q, qd, state.params, totalForce);
+  } else if (state.N === 3) {
+    result = getEOM_3pend(q, qd, state.params, totalForce);
+  } else if (state.N === 4) {
+    result = getEOM_4pend(q, qd, state.params, totalForce);
   } else {
-    result = getEOM_3pend(q, qd, state.params, force);
+    result = getEOM_3pend(q, qd, state.params, totalForce);
   }
   return solveLinearSystem(result.A, result.B);
 }
@@ -147,6 +170,19 @@ function stepRK4(dt, force) {
   
   state.q = Y.slice(0, size);
   state.qd = Y.slice(size);
+  
+  // Soft boundary wall clamping to prevent runaway numerical divergence
+  if (state.q[0] > 12.5) {
+    state.q[0] = 12.5;
+    if (state.qd[0] > 0) {
+      state.qd[0] = 0.0;
+    }
+  } else if (state.q[0] < -12.5) {
+    state.q[0] = -12.5;
+    if (state.qd[0] < 0) {
+      state.qd[0] = 0.0;
+    }
+  }
 }
 
 function getScreenCoordinates() {
@@ -199,8 +235,18 @@ function resetSim() {
 
 async function selectModel(name) {
   state.modelName = name;
-  state.N = name === '2pend' ? 2 : 3;
-  state.scale = name === '2pend' ? 200 : 150;
+  if (name === '2pend') {
+    state.N = 2;
+  } else if (name === '3pend') {
+    state.N = 3;
+  } else if (name === '4pend') {
+    state.N = 4;
+  } else {
+    state.N = 3;
+  }
+  state.scale = state.N === 2 ? 200 : (state.N === 3 ? 150 : 120);
+  
+  state.activePolicy = null;
   
   if (el.txtAngle3Row) {
     el.txtAngle3Row.style.display = state.N === 3 ? 'table-row' : 'none';
@@ -447,7 +493,7 @@ function animLoop(timestamp) {
       stepRK4(SIM_DT, force);
       state.stepCount++;
       
-      if (Math.abs(state.q[0]) > 12.0) {
+      if (Math.abs(state.q[0]) > 12.6 || isNaN(state.q[0])) {
         resetSim();
         break;
       }
