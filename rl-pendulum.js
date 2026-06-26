@@ -457,7 +457,7 @@ function animLoop(timestamp) {
         state.highScore = state.cumulativeReward;
       }
       
-      if (Math.abs(state.q[0]) > 12.0 || isNaN(state.q[0])) {
+      if (state.stepCount >= 200 || Math.abs(state.q[0]) > 12.0 || isNaN(state.q[0])) {
         resetSim();
         break;
       }
