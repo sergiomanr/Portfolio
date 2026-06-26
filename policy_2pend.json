@@ -1,0 +1,71 @@
+{
+  "encoder.weight": {
+    "shape": [
+      256,
+      6
+    ],
+    "offset": 0,
+    "size": 1536
+  },
+  "encoder.bias": {
+    "shape": [
+      256
+    ],
+    "offset": 6144,
+    "size": 256
+  },
+  "min_gru.cell.W_z.weight": {
+    "shape": [
+      256,
+      256
+    ],
+    "offset": 7168,
+    "size": 65536
+  },
+  "min_gru.cell.W_r.weight": {
+    "shape": [
+      256,
+      256
+    ],
+    "offset": 269312,
+    "size": 65536
+  },
+  "min_gru.cell.W_h.weight": {
+    "shape": [
+      256,
+      256
+    ],
+    "offset": 531456,
+    "size": 65536
+  },
+  "min_gru.cell.W_h.bias": {
+    "shape": [
+      256
+    ],
+    "offset": 793600,
+    "size": 256
+  },
+  "min_gru.cell.U_h.weight": {
+    "shape": [
+      256,
+      256
+    ],
+    "offset": 794624,
+    "size": 65536
+  },
+  "actor.weight": {
+    "shape": [
+      1,
+      256
+    ],
+    "offset": 1056768,
+    "size": 256
+  },
+  "actor.bias": {
+    "shape": [
+      1
+    ],
+    "offset": 1057792,
+    "size": 1
+  }
+}
