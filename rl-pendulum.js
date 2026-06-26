@@ -352,6 +352,9 @@ function drawScene() {
   const w = rect.width;
   const h = rect.height;
   
+  // Set scale dynamically so that the entire [-12, 12] meter track fits on the screen with margin
+  state.scale = (w - 60) / 24;
+  
   state.originX = w / 2;
   state.originY = h / 2 + 60;
   
