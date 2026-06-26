@@ -105,15 +105,8 @@ const el = {
   modelSelect: document.getElementById('modelSelect'),
   btnAuto: document.getElementById('btnAuto'),
   btnManual: document.getElementById('btnManual'),
-  btnUpright: document.getElementById('btnUpright'),
-  btnDownward: document.getElementById('btnDownward'),
   btnPlayPause: document.getElementById('btnPlayPause'),
   btnReset: document.getElementById('btnReset'),
-  
-  sliderGravity: document.getElementById('sliderGravity'),
-  valGravity: document.getElementById('valGravity'),
-  sliderDamping: document.getElementById('sliderDamping'),
-  valDamping: document.getElementById('valDamping'),
   
   canvas: document.getElementById('simCanvas'),
   txtSteps: document.getElementById('txtSteps'),
@@ -519,38 +512,12 @@ function setupEventListeners() {
     el.btnAuto.classList.remove('active');
   });
   
-  el.btnUpright.addEventListener('click', () => {
-    state.startUpright = true;
-    el.btnUpright.classList.add('active');
-    el.btnDownward.classList.remove('active');
-    resetSim();
-  });
-  
-  el.btnDownward.addEventListener('click', () => {
-    state.startUpright = false;
-    el.btnDownward.classList.add('active');
-    el.btnUpright.classList.remove('active');
-    resetSim();
-  });
-  
   el.btnPlayPause.addEventListener('click', () => {
     state.paused = !state.paused;
     el.btnPlayPause.textContent = state.paused ? 'Play' : 'Pause';
   });
   
   el.btnReset.addEventListener('click', resetSim);
-  
-  el.sliderGravity.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
-    state.params.g = val;
-    el.valGravity.textContent = `${val.toFixed(1)} m/s²`;
-  });
-  
-  el.sliderDamping.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
-    state.params.d_p = val;
-    el.valDamping.textContent = val.toFixed(3);
-  });
   
   // Mouse
   el.canvas.addEventListener('mousedown', (e) => {
