@@ -381,20 +381,20 @@ function drawScene() {
   ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(state.originX - 10 * state.scale, state.originY);
-  ctx.lineTo(state.originX + 10 * state.scale, state.originY);
+  ctx.moveTo(state.originX - 12 * state.scale, state.originY);
+  ctx.lineTo(state.originX + 12 * state.scale, state.originY);
   ctx.stroke();
   
   // Limits
   ctx.strokeStyle = '#fee2e2';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(state.originX - 10 * state.scale, 0);
-  ctx.lineTo(state.originX - 10 * state.scale, h);
+  ctx.moveTo(state.originX - 12 * state.scale, 0);
+  ctx.lineTo(state.originX - 12 * state.scale, h);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(state.originX + 10 * state.scale, 0);
-  ctx.lineTo(state.originX + 10 * state.scale, h);
+  ctx.moveTo(state.originX + 12 * state.scale, 0);
+  ctx.lineTo(state.originX + 12 * state.scale, h);
   ctx.stroke();
   
   const joints = getScreenCoordinates();
@@ -613,7 +613,7 @@ function animLoop(timestamp) {
       stepRK4(SIM_DT, force);
       state.stepCount++;
       
-      if (Math.abs(state.q[0]) > 10.0) {
+      if (Math.abs(state.q[0]) > 12.0) {
         resetSim();
         break;
       }
