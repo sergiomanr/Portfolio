@@ -85,8 +85,8 @@ const state = {
   paused: false,
   stepCount: 0,
   cumulativeReward: 0.0,
+  highScore: 0.0,
   
-  autoMode: true,
   startUpright: false,
   
   loadedModels: {},
@@ -102,10 +102,11 @@ const state = {
 // DOM bindings
 const el = {
   modelSelect: document.getElementById('modelSelect'),
-  btnAuto: document.getElementById('btnAuto'),
-  btnManual: document.getElementById('btnManual'),
   btnPlayPause: document.getElementById('btnPlayPause'),
   btnReset: document.getElementById('btnReset'),
+  scoreVal: document.getElementById('scoreVal'),
+  highScoreVal: document.getElementById('highScoreVal'),
+  stepsVal: document.getElementById('stepsVal'),
   
   canvas: document.getElementById('simCanvas')
 };
@@ -279,21 +280,13 @@ async function selectModel(name) {
 }
 
 function computeReward() {
-  if (state.N === 2) {
-    const t1 = wrapAngle(state.q[1]);
-    const t2 = wrapAngle(state.q[2]);
-    const h1 = Math.abs(t1) < Math.PI / 2 ? (Math.cos(t1) + 1.0) / 2.0 : 0.0;
-    const h2 = Math.abs(t2) < Math.PI / 2 ? (Math.cos(t2) + 1.0) / 2.0 : 0.0;
-    return (h1 + h2) / 2.0;
-  } else {
-    const t1 = wrapAngle(state.q[1]);
-    const t2 = wrapAngle(state.q[2]);
-    const t3 = wrapAngle(state.q[3]);
-    const h1 = Math.abs(t1) < Math.PI / 2 ? (Math.cos(t1) + 1.0) / 2.0 : 0.0;
-    const h2 = Math.abs(t2) < Math.PI / 2 ? (Math.cos(t2) + 1.0) / 2.0 : 0.0;
-    const h3 = Math.abs(t3) < Math.PI / 2 ? (Math.cos(t3) + 1.0) / 2.0 : 0.0;
-    return (h1 + h2 + h3) / 3.0;
+  let sum = 0;
+  for (let i = 1; i <= state.N; i++) {
+    const t = wrapAngle(state.q[i]);
+    const h = Math.abs(t) < Math.PI / 2 ? (Math.cos(t) + 1.0) / 2.0 : 0.0;
+    sum += h;
   }
+  return sum / state.N;
 }
 
 function getPolicyControlForce() {
@@ -427,6 +420,11 @@ function drawScene() {
     ctx.fill();
     ctx.stroke();
   }
+
+  // Update HTML score indicators
+  if (el.scoreVal) el.scoreVal.textContent = state.cumulativeReward.toFixed(1);
+  if (el.highScoreVal) el.highScoreVal.textContent = state.highScore.toFixed(1);
+  if (el.stepsVal) el.stepsVal.textContent = state.stepCount;
 }
 
 
@@ -434,18 +432,6 @@ function drawScene() {
 function setupEventListeners() {
   el.modelSelect.addEventListener('change', (e) => {
     selectModel(e.target.value);
-  });
-  
-  el.btnAuto.addEventListener('click', () => {
-    state.autoMode = true;
-    el.btnAuto.classList.add('active');
-    el.btnManual.classList.remove('active');
-  });
-  
-  el.btnManual.addEventListener('click', () => {
-    state.autoMode = false;
-    el.btnManual.classList.add('active');
-    el.btnAuto.classList.remove('active');
   });
   
   el.btnPlayPause.addEventListener('click', () => {
@@ -482,16 +468,21 @@ function animLoop(timestamp) {
     const steps = Math.round(elapsed / SIM_DT);
     for (let step = 0; step < Math.min(4, steps); step++) {
       let force = 0;
-      if (state.autoMode) {
+      if (state.activePolicy) {
         force = getPolicyControlForce();
-      } else {
-        if (state.keys['ArrowLeft']) force = -50.0;
-        if (state.keys['ArrowRight']) force = 50.0;
       }
+      
+      // Apply manual perturbation or control on top of policy
+      if (state.keys['ArrowLeft']) force -= 100.0;
+      if (state.keys['ArrowRight']) force += 100.0;
       
       state.f_applied = force;
       stepRK4(SIM_DT, force);
       state.stepCount++;
+      state.cumulativeReward += computeReward();
+      if (state.cumulativeReward > state.highScore) {
+        state.highScore = state.cumulativeReward;
+      }
       
       if (Math.abs(state.q[0]) > 12.6 || isNaN(state.q[0])) {
         resetSim();

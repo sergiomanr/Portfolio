@@ -83,6 +83,16 @@
                 
                 <!-- Simulator Widget -->
                 <div class="interactive-demo" style="max-width: 100%; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #333;">
+                        <div>
+                            Score: <span id="scoreVal" style="font-family: monospace; font-size: 15px; color: #e53e3e; margin-right: 15px;">0.0</span>
+                            High Score: <span id="highScoreVal" style="font-family: monospace; font-size: 15px; color: #3182ce;">0.0</span>
+                        </div>
+                        <div>
+                            Steps: <span id="stepsVal" style="font-family: monospace; font-weight: normal; color: #666;">0</span>
+                        </div>
+                    </div>
+
                     <div class="canvas-wrapper" style="position: relative; border: 1px solid #eee; border-radius: 6px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                         <canvas id="simCanvas" style="display: block; width: 100%; height: 500px; background-color: #fff;"></canvas>
                     </div>
@@ -98,14 +108,6 @@
                                     <option value="4pend">Quadruple Pendulum (4 Joints) [Manual]</option>
                                 </select>
                             </div>
-                            
-                            <div>
-                                <label style="font-size: 13px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Control Mode</label>
-                                <div style="display: flex; gap: 5px;">
-                                    <button id="btnAuto" class="active" style="flex: 1; padding: 6px; border: 1px solid #000; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">Auto (Policy)</button>
-                                    <button id="btnManual" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">Manual</button>
-                                </div>
-                            </div>
                         </div>
                         
                         <!-- Column 2: Parameters & Active Controls -->
@@ -117,7 +119,7 @@
                             
                             <div style="font-size: 11px; color: #666; line-height: 1.4; margin-top: 2px;">
                                 <strong>Interactive tips:</strong><br>
-                                • Manual mode: Use Left/Right keys <kbd>←</kbd> <kbd>→</kbd> to apply force.
+                                • Use Left/Right arrow keys <kbd>←</kbd> <kbd>→</kbd> to apply manual force and perturb the cart.
                             </div>
                         </div>
                     </div>
