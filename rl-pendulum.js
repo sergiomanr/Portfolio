@@ -107,7 +107,6 @@ const el = {
   scoreVal: document.getElementById('scoreVal'),
   highScoreVal: document.getElementById('highScoreVal'),
   stepsVal: document.getElementById('stepsVal'),
-  
   canvas: document.getElementById('simCanvas')
 };
 
@@ -402,30 +401,25 @@ function drawScene() {
 
 
 
+
+
 function setupEventListeners() {
-  el.modelSelect.addEventListener('change', (e) => {
-    selectModel(e.target.value);
-  });
-  
-  el.btnPlayPause.addEventListener('click', () => {
-    state.paused = !state.paused;
-    el.btnPlayPause.textContent = state.paused ? 'Play' : 'Pause';
-  });
-  
-  el.btnReset.addEventListener('click', resetSim);
-  
-  // Arrow keys manual input
-  const keys = {};
-  window.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
-    if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-      e.preventDefault();
-    }
-  });
-  window.addEventListener('keyup', (e) => {
-    keys[e.key] = false;
-  });
-  state.keys = keys;
+  if (el.modelSelect) {
+    el.modelSelect.addEventListener('change', (e) => {
+      selectModel(e.target.value);
+    });
+  }
+
+  if (el.btnPlayPause) {
+    el.btnPlayPause.addEventListener('click', () => {
+      state.paused = !state.paused;
+      el.btnPlayPause.textContent = state.paused ? 'Play' : 'Pause';
+    });
+  }
+
+  if (el.btnReset) {
+    el.btnReset.addEventListener('click', resetSim);
+  }
 }
 
 let lastTime = 0;
@@ -444,10 +438,6 @@ function animLoop(timestamp) {
       if (state.activePolicy) {
         force = getPolicyControlForce();
       }
-      
-      // Apply manual perturbation or control on top of policy
-      if (state.keys['ArrowLeft']) force -= 100.0;
-      if (state.keys['ArrowRight']) force += 100.0;
       
       state.f_applied = force;
       stepRK4(SIM_DT, force);

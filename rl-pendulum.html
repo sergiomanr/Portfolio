@@ -60,7 +60,7 @@
 <body class="wide-container">
     <header>
         <h1>Reinforcement Learning Pendulum</h1>
-        <p>Deep RL Multi-Link Swing-up & Balancing</p>
+        <p>Deep RL · Multi-Link Swing-up & Balancing · Live Browser Inference</p>
     </header>
 
     <nav>
@@ -73,10 +73,10 @@
             <h2>Project Overview</h2>
             <div class="about-content">
                 <p>
-                    This project demonstrates the training and deployment of deep reinforcement learning policies to solve classic chaotic control tasks: balancing double and triple pendulums on an unactuated track. The models run entirely client-side in the browser using custom JS physics and neural network inference engines.
+                    This project features the real-time deployment of deep reinforcement learning agents capable of solving highly non-linear control tasks: swinging up and stabilizing multi-link pendulums on an unactuated cart. All inference runs entirely client-side in the browser using a hand-rolled neural network runtime.
                 </p>
                 <p>
-                    <strong>Ongoing Research:</strong> Work is currently active on extending the control policy to a quadruple pendulum (4-pendulum) system. Due to the extreme chaotic coupling and highly non-linear dynamics of a four-link chain, stabilizing and balancing the quadruple pendulum is an active area of training and optimization that has not yet been fully solved.
+                    <strong>Ongoing Research:</strong> Training is currently active on a quadruple pendulum (4-link) controller. The four-link system presents an order-of-magnitude increase in chaotic coupling and state-space complexity compared to the triple pendulum, and stabilizing it remains an open challenge.
                 </p>
 
                 <h3 style="margin-top: 30px; margin-bottom: 15px;">Interactive Simulation</h3>
@@ -96,60 +96,35 @@
                     <div class="canvas-wrapper" style="position: relative; border: 1px solid #eee; border-radius: 6px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                         <canvas id="simCanvas" style="display: block; width: 100%; height: 500px; background-color: #fff;"></canvas>
                     </div>
-                    
-                    <div class="controls-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <!-- Column 1: Configs -->
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <div>
-                                <label style="font-size: 13px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Pendulum System</label>
-                                <select id="modelSelect" style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; width: 100%; background-color: #fff;">
-                                    <option value="2pend">Double Pendulum (2 Joints)</option>
-                                    <option value="3pend" selected>Triple Pendulum (3 Joints)</option>
-                                    <option value="4pend">Quadruple Pendulum (4 Joints) [Manual]</option>
-                                </select>
-                            </div>
+
+                    <div class="controls-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; align-items: end;">
+                        <!-- Column 1: Pendulum selector -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 13px; font-weight: 600; color: #444;">Pendulum System</label>
+                            <select id="modelSelect" style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; width: 100%; background-color: #fff;">
+                                <option value="2pend">Double Pendulum (2 Joints)</option>
+                                <option value="3pend" selected>Triple Pendulum (3 Joints)</option>
+                                <option value="4pend" hidden>Quadruple Pendulum (4 Joints) [Manual]</option>
+                            </select>
                         </div>
-                        
-                        <!-- Column 2: Parameters & Active Controls -->
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <div style="display: flex; gap: 5px; margin-top: 2px;">
-                                <button id="btnPlayPause" style="flex: 2; padding: 7px 10px; border: 1px solid #000; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;">Pause</button>
-                                <button id="btnReset" style="flex: 1; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;">Reset</button>
-                            </div>
-                            
-                            <div style="font-size: 11px; color: #666; line-height: 1.4; margin-top: 2px;">
-                                <strong>Interactive tips:</strong><br>
-                                • Use Left/Right arrow keys <kbd>←</kbd> <kbd>→</kbd> to apply manual force and perturb the cart.
-                            </div>
+
+                        <!-- Column 2: Playback controls -->
+                        <div style="display: flex; gap: 8px;">
+                            <button id="btnPlayPause" style="flex: 2; padding: 7px 10px; border: 1px solid #000; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff;">Pause</button>
+                            <button id="btnReset" style="flex: 1; padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff;">Reset</button>
                         </div>
                     </div>
-                    
-                </div>
 
-                <h3 style="margin-top: 30px;">What is Reinforcement Learning?</h3>
-                <p>
-                    Reinforcement Learning (RL) is a paradigm of machine learning where an autonomous agent learns to achieve a complex goal in an environment by receiving numeric rewards or penalties. Unlike supervised learning, which trains models using static datasets of pre-defined correct outputs, an RL agent learns entirely through trial-and-error. 
-                </p>
-                <p>
-                    The agent monitors the environment's current state, selects an action, experiences the environment's state transition, and receives feedback. Over millions of iterations, it optimizes a mathematical policy to maximize the expected cumulative reward over time.
-                </p>
+                </div>
 
                 <h3 style="margin-top: 30px;">How the Model Works</h3>
                 <p>
-                    To balance multiple unactuated pendulum joints, the agent must perform a highly coordinated sequence of maneuvers:
+                    At each 20 ms step the agent observes cart position/velocity and the relative angle and angular velocity of every link, then outputs a single continuous force applied to the cart (±20 N). A minGRU recurrent layer gives the network memory across timesteps, which is essential for building swing-up momentum before balancing becomes possible.
                 </p>
-                <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><strong>Observation Space:</strong> At each 20ms step, the agent reads the system telemetry: cart displacement/velocity, and relative angles/angular velocities of all links.</li>
-                    <li><strong>Action Space:</strong> The policy outputs a continuous value mapping to a force applied directly to the cart (up to $\pm 500$ Newtons).</li>
-                    <li><strong>minGRU Recurrence:</strong> The controller utilizes a Minimal Gated Recurrent Unit (minGRU) layer. This gives the network sequence-based memory, allowing it to estimate system velocities and anticipate delayed swingup momentum.</li>
-                    <li><strong>Generalization Test:</strong> Adjusting gravity or friction sliders tests the agent's zero-shot generalization under conditions it never experienced during training.</li>
-                </ul>
 
                 <h3 style="margin-top: 30px;">Technical Stack</h3>
                 <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><strong>Deep RL:</strong> Trained using Proximal Policy Optimization (PPO) and minGRU recurrent cells in Python and PyTorch.</li>
-                    <li><strong>Lagrangian Physics Solver:</strong> Equations of motion derived symbolically using SymPy and integrated in JS using Runge-Kutta 4th order (RK4) integration.</li>
-                    <li><strong>Vanilla JavaScript Inference:</strong> Weights exported into flat binary arrays (`Float32Array`) and computed client-side with no external libraries.</li>
+                    <li><strong>PPO + minGRU:</strong> Trained with Proximal Policy Optimization using a recurrent minGRU actor-critic. The value network shares the recurrent trunk with the policy; advantages are computed via GAE(λ) with a clipped surrogate objective. The environment runs in MuJoCo with a continuous action space and shaped cosine reward per link.</li>
                 </ul>
 
                 <div style="margin-top: 30px;">
