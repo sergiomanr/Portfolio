@@ -102,15 +102,7 @@ const el = {
   btnPlayPause: document.getElementById('btnPlayPause'),
   btnReset: document.getElementById('btnReset'),
   
-  canvas: document.getElementById('simCanvas'),
-  txtSteps: document.getElementById('txtSteps'),
-  txtReward: document.getElementById('txtReward'),
-  txtCartX: document.getElementById('txtCartX'),
-  txtAngle1: document.getElementById('txtAngle1'),
-  txtAngle2: document.getElementById('txtAngle2'),
-  txtAngle3: document.getElementById('txtAngle3'),
-  txtAngle3Row: document.getElementById('txtAngle3Row'),
-  txtForce: document.getElementById('txtForce')
+  canvas: document.getElementById('simCanvas')
 };
 
 // Physics Accelerations
@@ -391,18 +383,7 @@ function drawScene() {
   }
 }
 
-function updateHUD() {
-  if (!state.q) return;
-  el.txtSteps.textContent = state.stepCount;
-  el.txtReward.textContent = computeReward().toFixed(3);
-  el.txtCartX.textContent = `${state.q[0].toFixed(3)}m`;
-  el.txtAngle1.textContent = `${(wrapAngle(state.q[1]) * 180 / Math.PI).toFixed(1)}°`;
-  el.txtAngle2.textContent = `${(wrapAngle(state.q[2] - state.q[1]) * 180 / Math.PI).toFixed(1)}°`;
-  if (state.N === 3 && el.txtAngle3) {
-    el.txtAngle3.textContent = `${(wrapAngle(state.q[3] - state.q[2]) * 180 / Math.PI).toFixed(1)}°`;
-  }
-  el.txtForce.textContent = `${state.f_applied.toFixed(1)} N`;
-}
+
 
 function setupEventListeners() {
   el.modelSelect.addEventListener('change', (e) => {
@@ -475,7 +456,6 @@ function animLoop(timestamp) {
   
   if (state.q) {
     drawScene();
-    updateHUD();
   }
   
   requestAnimationFrame(animLoop);
