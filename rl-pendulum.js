@@ -91,13 +91,7 @@ const state = {
   originX: 0,
   originY: 0,
   trailPoints: [],
-  maxTrailLen: 100,
-  
-  grabbedBody: null,
-  mousePos: { x: 0, y: 0 },
-  isMouseDown: false,
-  springK: 250.0,
-  dampingD: 8.0
+  maxTrailLen: 100
 };
 
 // DOM bindings
@@ -127,34 +121,7 @@ function computeAccelerations(q, qd, force) {
   } else {
     result = getEOM_3pend(q, qd, state.params, force);
   }
-  
-  const { A, B } = result;
-  
-  // Mouse drag spring torque injection
-  if (state.grabbedBody !== null && state.isMouseDown) {
-    const pCom = getBodyCOMPosition(q, state.grabbedBody);
-    const vCom = getBodyCOMVelocity(q, qd, state.grabbedBody);
-    
-    const mouseTargetX = (state.mousePos.x - state.originX) / state.scale;
-    const mouseTargetZ = (state.originY - state.mousePos.y) / state.scale;
-    
-    const Fx = state.springK * (mouseTargetX - pCom.x) - state.dampingD * vCom.xd;
-    const Fz = state.springK * (mouseTargetZ - pCom.z) - state.dampingD * vCom.zd;
-    
-    B[0] += Fx;
-    const idx = state.grabbedBody;
-    const L = state.params.L;
-    
-    for (let j = 1; j <= state.N; j++) {
-      if (j < idx) {
-        B[j] += Fx * L * Math.cos(q[j]) - Fz * L * Math.sin(q[j]);
-      } else if (j === idx) {
-        B[j] += Fx * (L / 2) * Math.cos(q[j]) - Fz * (L / 2) * Math.sin(q[j]);
-      }
-    }
-  }
-  
-  return solveLinearSystem(A, B);
+  return solveLinearSystem(result.A, result.B);
 }
 
 // Derivative vector
@@ -188,34 +155,6 @@ function stepRK4(dt, force) {
   
   state.q = Y.slice(0, size);
   state.qd = Y.slice(size);
-}
-
-function getBodyCOMPosition(q, idx) {
-  if (idx === 0) return { x: q[0], z: 0 };
-  const L = state.params.L;
-  let cx = q[0];
-  let cz = 0;
-  for (let i = 1; i < idx; i++) {
-    cx += L * Math.sin(q[i]);
-    cz += L * Math.cos(q[i]);
-  }
-  cx += (L / 2) * Math.sin(q[idx]);
-  cz += (L / 2) * Math.cos(q[idx]);
-  return { x: cx, z: cz };
-}
-
-function getBodyCOMVelocity(q, qd, idx) {
-  if (idx === 0) return { xd: qd[0], zd: 0 };
-  const L = state.params.L;
-  let vxd = qd[0];
-  let vzd = 0;
-  for (let i = 1; i < idx; i++) {
-    vxd += L * qd[i] * Math.cos(q[i]);
-    vzd -= L * qd[i] * Math.sin(q[i]);
-  }
-  vxd += (L / 2) * qd[idx] * Math.cos(q[idx]);
-  vzd -= (L / 2) * qd[idx] * Math.sin(q[idx]);
-  return { xd: vxd, zd: vzd };
 }
 
 function getScreenCoordinates() {
@@ -417,22 +356,6 @@ function drawScene() {
     ctx.stroke();
   }
   
-  // Draw Mouse drag spring
-  if (state.grabbedBody !== null && state.isMouseDown) {
-    const grabCoords = getBodyCOMPosition(state.q, state.grabbedBody);
-    const gX = state.originX + grabCoords.x * state.scale;
-    const gY = state.originY - grabCoords.z * state.scale;
-    
-    ctx.strokeStyle = '#d97706';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(state.mousePos.x, state.mousePos.y);
-    ctx.lineTo(gX, gY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-  
   // Draw Cart
   const cartW = 0.35 * state.scale;
   const cartH = 0.15 * state.scale;
@@ -461,28 +384,11 @@ function drawScene() {
   ctx.lineWidth = 2;
   for (let i = 0; i < joints.length; i++) {
     const p = joints[i];
-    const dMouse = Math.hypot(state.mousePos.x - p.x, state.mousePos.y - p.y);
-    const isHovered = dMouse < 18;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, isHovered ? 6 : 4.5, 0, 2*Math.PI);
+    ctx.arc(p.x, p.y, 4.5, 0, 2*Math.PI);
     ctx.fill();
     ctx.stroke();
   }
-}
-
-function checkGrabbedBody(mx, my) {
-  const joints = getScreenCoordinates();
-  const dCart = Math.hypot(mx - joints[0].x, my - joints[0].y);
-  if (dCart < 25) return 0;
-  
-  for (let i = 1; i <= state.N; i++) {
-    const com = getBodyCOMPosition(state.q, i);
-    const comX = state.originX + com.x * state.scale;
-    const comY = state.originY - com.z * state.scale;
-    const dCom = Math.hypot(mx - comX, my - comY);
-    if (dCom < 30) return i;
-  }
-  return null;
 }
 
 function updateHUD() {
@@ -521,29 +427,6 @@ function setupEventListeners() {
   });
   
   el.btnReset.addEventListener('click', resetSim);
-  
-  // Mouse
-  el.canvas.addEventListener('mousedown', (e) => {
-    const rect = el.canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const grabbed = checkGrabbedBody(mx, my);
-    if (grabbed !== null) {
-      state.grabbedBody = grabbed;
-      state.isMouseDown = true;
-    }
-  });
-  
-  window.addEventListener('mousemove', (e) => {
-    const rect = el.canvas.getBoundingClientRect();
-    state.mousePos.x = e.clientX - rect.left;
-    state.mousePos.y = e.clientY - rect.top;
-  });
-  
-  window.addEventListener('mouseup', () => {
-    state.isMouseDown = false;
-    state.grabbedBody = null;
-  });
   
   // Arrow keys manual input
   const keys = {};
