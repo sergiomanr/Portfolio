@@ -287,8 +287,15 @@ function drawScene() {
   
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  const targetW = Math.round(rect.width * dpr);
+  const targetH = Math.round(rect.height * dpr);
+  
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW;
+    canvas.height = targetH;
+  }
+  
+  ctx.resetTransform();
   ctx.scale(dpr, dpr);
   
   const w = rect.width;
@@ -424,6 +431,7 @@ function setupEventListeners() {
 
 let lastTime = 0;
 const SIM_DT = 0.02;
+let accumulator = 0.0;
 
 function animLoop(timestamp) {
   if (!lastTime) lastTime = timestamp;
@@ -432,8 +440,14 @@ function animLoop(timestamp) {
   if (elapsed > 0.1) elapsed = 0.1;
   
   if (!state.paused && state.q) {
-    const steps = Math.round(elapsed / SIM_DT);
-    for (let step = 0; step < Math.min(4, steps); step++) {
+    accumulator += elapsed;
+    
+    // Prevent "spiral of death" on very slow devices
+    if (accumulator > 0.2) {
+      accumulator = 0.2;
+    }
+    
+    while (accumulator >= SIM_DT) {
       let force = 0;
       if (state.activePolicy) {
         force = getPolicyControlForce();
@@ -449,9 +463,14 @@ function animLoop(timestamp) {
       
       if (state.stepCount >= 200 || Math.abs(state.q[0]) > 12.0 || isNaN(state.q[0])) {
         resetSim();
+        accumulator = 0.0; // Clear accumulator on reset
         break;
       }
+      
+      accumulator -= SIM_DT;
     }
+  } else {
+    accumulator = 0.0; // Clear accumulator when paused
   }
   
   if (state.q) {
